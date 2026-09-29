@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS email_otps (
+  user_id      INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  code_hash    TEXT NOT NULL,
+  expires_at   TIMESTAMPTZ NOT NULL,
+  attempts     INTEGER NOT NULL DEFAULT 0,
+  last_sent_at TIMESTAMPTZ NOT NULL
+);
