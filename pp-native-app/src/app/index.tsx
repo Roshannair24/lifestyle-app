@@ -1,98 +1,68 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// import { Text, View, StyleSheet, TextInput } from "react-native";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+// export default function Index() {
+//   return (
+//     <View style={styles.container}>
+//       <Text style={styles.text}>Home screen v22</Text>
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+//       <Text style={styles.title}>Create your account</Text>
+//       <Text style={styles.subtitle}>Sign up to get started with PadosiPro</Text>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+//       <Text style={styles.label}>Email</Text>
+//       {/* <TextInput
+//         style={[styles.input, showError("email") && styles.inputError]}
+//         value={values.email}
+//         onChangeText={onChange("email")}
+//         onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+//         placeholder="you@example.com"
+//         keyboardType="email-address"
+//         autoCapitalize="none"
+//         autoComplete="email"
+//         textContentType="emailAddress"
+//       /> */}
+//     </View>
+//   );
+// }
 
-        <ThemedText type="code" style={styles.code}>
-          get started yo
-        </ThemedText>
+// const COLORS = {
+//   primary: "#1f5f4a", // placeholder: match to app.padosipro.com
+//   text: "#1a1a1a",
+//   muted: "#6b7280",
+//   border: "#d1d5db",
+//   error: "#dc2626",
+//   bg: "#ffffff",
+// };
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: "#25292e",
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+//   text: {
+//     color: "#fff",
+//   },
+//   title: { fontSize: 26, fontWeight: "700", color: COLORS.text },
+//   subtitle: { fontSize: 15, color: COLORS.muted, marginTop: 6, marginBottom: 24 },
+//   label: {
+//     fontSize: 14,
+//     fontWeight: "600",
+//     color: COLORS.text,
+//     marginTop: 14,
+//     marginBottom: 6,
+//   },
+//   input: {
+//     borderWidth: 1,
+//     borderColor: COLORS.border,
+//     borderRadius: 10,
+//     paddingHorizontal: 14,
+//     paddingVertical: 12,
+//     fontSize: 16,
+//     color: COLORS.text,
+//   },
+// });
+ import { Redirect } from "expo-router";
+   export default function Index() {
+     return <Redirect href="/register" />;
+   }
