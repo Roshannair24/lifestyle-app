@@ -42,7 +42,15 @@ const registerUser = async (req, res) => {
       console.error("sendOtpEmail failed:", mailErr);
     }
 
-    return res.status(201).json({ ok: true, user: rows[0] });
+    return res.status(201).json({
+      ok: true,
+      user,
+      data: {
+        emailSent,
+        expiresInSeconds: OTP_TTL_MS / 1000,
+        resendAfterSeconds: RESEND_COOLDOWN_MS / 1000,
+      },
+    });
   } catch (error) {
     await client.query("ROLLBACK").catch((err) => {
       console.log("Error at rollback:", err);

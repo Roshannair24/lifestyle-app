@@ -16,6 +16,12 @@ services:
       timeout: 3s
       retries: 10
 
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"   # inbox UI: http://localhost:8025
+      - "1025:1025"   
+
   # api:
   #   build: ./pp-server          # uses pp-server/Dockerfile
   #   ports:
