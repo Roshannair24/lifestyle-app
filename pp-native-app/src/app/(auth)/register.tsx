@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Text,
   View,
@@ -11,9 +11,14 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
+import { useTheme } from "@/hooks/use-theme";
+import { API_URL } from "@/lib/url";
+
+type ThemeColors = ReturnType<typeof useTheme>;
+
 type Field = "email" | "password" | "confirm";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://10.0.2.2:3000";
+// const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://10.0.2.2:3000";
 
 function validate(values: Record<Field, string>) {
   const errors: Partial<Record<Field, string>> = {};
@@ -36,6 +41,9 @@ function validate(values: Record<Field, string>) {
 }
 
 export default function Register() {
+  const theme = useTheme();
+  const styles = useMemo(() => makeStyles(theme), [theme]);
+
   const [values, setValues] = useState({
     email: "",
     password: "",
@@ -61,7 +69,7 @@ export default function Register() {
     setLoading(true);
     setServerError(null);
     try {
-      const res = await fetch(`${API_URL}/auth/register`, {
+      const res = await fetch(`${API_URL}/user/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -71,6 +79,8 @@ export default function Register() {
       });
       const data = await res.json().catch(() => ({}));
 
+      console.log("data:", data);
+
       if (!res.ok) {
         setServerError(
           data?.error?.message ?? "Registration failed. Please try again.",
@@ -78,7 +88,10 @@ export default function Register() {
         return;
       }
 
-      //   router.push({ pathname: "/verify", params: { email: values.email.trim().toLowerCase() } });
+      router.push({
+        pathname: "/verify",
+        params: { email: values.email.trim() },
+      });
     } catch {
       setServerError(
         "Can't reach the server. Check your connection and try again.",
@@ -181,70 +194,62 @@ export default function Register() {
   );
 }
 
-const COLORS = {
-  primary: "#1f5f4a",
-  text: "#1a1a1a",
-  muted: "#6b7280",
-  border: "#d1d5db",
-  error: "#dc2626",
-  bg: "#ffffff",
-};
+const makeStyles = (theme: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flexGrow: 1,
+      justifyContent: "center",
+      padding: 24,
+      backgroundColor: theme.background,
+    },
+    text: {
+      color: "#fff",
+    },
+    title: { fontSize: 26, fontWeight: "700", color: theme.text },
+    subtitle: {
+      fontSize: 15,
+      color: theme.textSecondary,
+      marginTop: 6,
+      marginBottom: 24,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.text,
+      marginTop: 14,
+      marginBottom: 6,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      fontSize: 16,
+      color: theme.text,
+    },
+    inputError: { borderColor: theme.error },
 
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: COLORS.bg,
-  },
-  text: {
-    color: "#fff",
-  },
-  title: { fontSize: 26, fontWeight: "700", color: COLORS.text },
-  subtitle: {
-    fontSize: 15,
-    color: COLORS.muted,
-    marginTop: 6,
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.text,
-    marginTop: 14,
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: COLORS.text,
-  },
-  inputError: { borderColor: COLORS.error },
+    error: { color: theme.error, fontSize: 13, marginTop: 4 },
+    toggle: {
+      position: "absolute",
+      right: 12,
+      top: 0,
+      bottom: 0,
+      justifyContent: "center",
+    },
+    toggleText: { color: theme.primary, fontWeight: "600" },
 
-  error: { color: COLORS.error, fontSize: 13, marginTop: 4 },
-  toggle: {
-    position: "absolute",
-    right: 12,
-    top: 0,
-    bottom: 0,
-    justifyContent: "center",
-  },
-  toggleText: { color: COLORS.primary, fontWeight: "600" },
+    button: {
+      backgroundColor: theme.primary,
+      borderRadius: 10,
+      paddingVertical: 14,
+      alignItems: "center",
+      marginTop: 28,
+    },
 
-  button: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: "center",
-    marginTop: 28,
-  },
-
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  linkRow: { marginTop: 20, alignItems: "center" },
-  linkText: { color: COLORS.muted, fontSize: 14 },
-  link: { color: COLORS.primary, fontWeight: "600" },
-});
+    buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+    linkRow: { marginTop: 20, alignItems: "center" },
+    linkText: { color: theme.textSecondary, fontSize: 14 },
+    link: { color: theme.primary, fontWeight: "600" },
+  });

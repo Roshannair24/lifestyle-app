@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const pool = require("../../../db");
-const { assignOtp } = require("../../../services/otp-service");
+const { assignOtp, OTP_TTL_MS, RESEND_COOLDOWN_MS } = require("../../../services/otp-service");
 const { sendOtpEmail } = require("../../../services/email-service");
 
 const SALT_ROUNDS = 12;
