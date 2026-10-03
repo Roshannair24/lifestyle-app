@@ -1,7 +1,12 @@
 const bcrypt = require("bcryptjs");
 const pool = require("../../../db");
-const { assignOtp, OTP_TTL_MS, RESEND_COOLDOWN_MS } = require("../../../services/otp-service");
+const {
+  assignOtp,
+  OTP_TTL_MS,
+  RESEND_COOLDOWN_MS,
+} = require("../../../services/otp-service");
 const { sendOtpEmail } = require("../../../services/email-service");
+const errorCodes = require("../../../constants/error-codes");
 
 const SALT_ROUNDS = 12;
 
@@ -12,12 +17,6 @@ const registerUser = async (req, res) => {
   try {
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // const { rows } = await pool.query(
-    //   `INSERT INTO users (email, password_hash)
-    //    VALUES ($1, $2)
-    //    RETURNING id, email, is_verified`,
-    //   [email, passwordHash],
-    // );
     console.log("beginning");
     await client.query("BEGIN");
     const { rows } = await client.query(
@@ -59,7 +58,7 @@ const registerUser = async (req, res) => {
     if (error.code === "23505") {
       return res.status(409).json({
         error: {
-          code: "EMAIL_TAKEN",
+          code: errorCodes.EMAIL_TAKEN,
           message: "An account with this email already exists",
         },
       });
@@ -68,7 +67,7 @@ const registerUser = async (req, res) => {
     console.error("registerUser failed:", error);
     return res.status(500).json({
       error: {
-        code: "INTERNAL_ERROR",
+        code: errorCodes.INTERNAL_ERROR,
         message: "Something went wrong. Please try again.",
       },
     });

@@ -34,10 +34,10 @@ export const Colors = {
 
   light: {
     text: "#1a1a1a",
-    background: "#ffffff",
+    background: "#fafaf7",
     backgroundElement: "#F0F0F3",
     backgroundSelected: "#E0E1E6",
-    textSecondary: "#6b7280",
+    textSecondary: "#667085",
     primary: "#1f5f4a", // placeholder: match to app.padosipro.com
     border: "#d1d5db",
     error: "#dc2626",

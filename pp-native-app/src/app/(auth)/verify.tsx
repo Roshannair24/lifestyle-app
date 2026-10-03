@@ -19,9 +19,13 @@ export default function Verify() {
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { email, expiresInSeconds, resendAfterSeconds } = useLocalSearchParams<{
+    email: string;
+    expiresInSeconds: string;
+    resendAfterSeconds: string;
+  }>();
 
-  const RESEND_COOLDOWN = 30;
+  const RESEND_COOLDOWN = Number(resendAfterSeconds) || 30;
 
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +47,27 @@ export default function Verify() {
     return `0:${String(s).padStart(2, "0")}`;
   }
 
-  async function handleVerify() {}
+  async function handleVerify() {
+    if (!canSubmit) return;
+    setVerifying(true);
+    setError(null);
+    setInfo(null);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+  }
 
   async function handleResend() {}
 

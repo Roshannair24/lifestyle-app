@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { router } from "expo-router";
 import { useTheme } from "@/hooks/use-theme";
@@ -17,8 +18,6 @@ import { API_URL } from "@/lib/url";
 type ThemeColors = ReturnType<typeof useTheme>;
 
 type Field = "email" | "password" | "confirm";
-
-// const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://10.0.2.2:3000";
 
 function validate(values: Record<Field, string>) {
   const errors: Partial<Record<Field, string>> = {};
@@ -90,7 +89,11 @@ export default function Register() {
 
       router.push({
         pathname: "/verify",
-        params: { email: values.email.trim() },
+        params: {
+          email: values.email.trim(),
+          expiresInSeconds: data?.data?.expiresInSeconds,
+          resendAfterSeconds: data?.data?.resendAfterSeconds,
+        },
       });
     } catch {
       setServerError(
@@ -110,11 +113,19 @@ export default function Register() {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.text}>register</Text>
+        <View style={styles.brand}>
+          <Image
+            source={require("@/assets/images/pp-logo.png")}
+            style={styles.heroLogo}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
 
-        <Text style={styles.title}>Create your account</Text>
+          <Text style={styles.brandName}>PadosiPro</Text>
+        </View>
+        <Text style={styles.title}>Welcome</Text>
         <Text style={styles.subtitle}>
-          Sign up to get started with PadosiPro
+          Enter your mobile number and email. We'll send the OTP to your email.
         </Text>
 
         <Text style={styles.label}>Email</Text>
@@ -207,8 +218,9 @@ const makeStyles = (theme: ThemeColors) =>
     },
     title: { fontSize: 26, fontWeight: "700", color: theme.text },
     subtitle: {
-      fontSize: 15,
+      fontSize: 14,
       color: theme.textSecondary,
+      fontFamily: Platform.select({ ios: "System", android: "Roboto" }),
       marginTop: 6,
       marginBottom: 24,
     },
@@ -252,4 +264,25 @@ const makeStyles = (theme: ThemeColors) =>
     linkRow: { marginTop: 20, alignItems: "center" },
     linkText: { color: theme.textSecondary, fontSize: 14 },
     link: { color: theme.primary, fontWeight: "600" },
+
+    // heroLogo: {
+    //   width: "100%",
+    //   height: 80,
+    //   alignSelf: "center",
+    //   marginBottom: 24,
+    // },
+    brand: {
+      alignItems: "center",
+      marginBottom: 24,
+    },
+    heroLogo: {
+      width: 80,
+      height: 80,
+      marginBottom: 6,
+    },
+    brandName: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.text,
+    },
   });

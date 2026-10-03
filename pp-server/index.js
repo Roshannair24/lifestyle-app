@@ -8,8 +8,10 @@ app.use(express.json());
 
 //routers
 const userRouter = require("./api/write/user/user-router");
+const authRouter = require("./api/write/auth/auth-router");
 
 app.use("/user", userRouter);
+app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
