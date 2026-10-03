@@ -27,6 +27,19 @@ const registerUser = async (req, res) => {
     );
     const user = rows[0];
     const code = await assignOtp({ db: client, userId: user?.id });
+
+    if (!code) {
+      await client.query("ROLLBACK");
+
+      return res.json({
+        ok: false,
+        error: {
+          code: errorCodes.INTERNAL_ERROR,
+          message: "otp generation failed",
+        },
+      });
+    }
+
     console.log({ user, code });
 
     await client.query("COMMIT");

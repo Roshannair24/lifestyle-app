@@ -30,7 +30,24 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
 
   const justVerified = params.verified === "1";
-  async function handleLogin() {}
+  async function handleLogin() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+  }
 
   return (
     <KeyboardAvoidingView
@@ -43,6 +60,12 @@ export default function Login() {
       >
         <Text style={styles.title}>Welcome back</Text>
         <Text style={styles.subtitle}>Log in to continue to PadosiPro</Text>
+
+          {justVerified && (
+          <View style={styles.successBanner}>
+            <Text style={styles.successText}>Email verified. Log in to continue.</Text>
+          </View>
+        )}
 
         <Text style={styles.label}>Email</Text>
         <TextInput
@@ -219,4 +242,13 @@ const makeStyles = (theme: ThemeColors) =>
       textAlign: "center",
     },
     footer: { flexDirection: "row", justifyContent: "center", marginTop: 24 },
+     successBanner: {
+      backgroundColor: theme.backgroundElement,
+      borderLeftWidth: 4,
+      borderLeftColor: theme.primary,
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 20,
+    },
+    successText: { color: theme.text, fontSize: 14 },
   });

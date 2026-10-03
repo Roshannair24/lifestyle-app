@@ -12,6 +12,7 @@ import {
 import { useMemo, useState, useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/hooks/use-theme";
+import { API_URL } from "@/lib/url";
 
 type ThemeColors = ReturnType<typeof useTheme>;
 
@@ -48,28 +49,95 @@ export default function Verify() {
   }
 
   async function handleVerify() {
-    if (!canSubmit) return;
-    setVerifying(true);
-    setError(null);
-    setInfo(null);
+    try {
+      if (!canSubmit) return;
+      setVerifying(true);
+      setError(null);
+      setInfo(null);
+
+      const url = `${API_URL}/auth/verify-otp`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          code: code,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      console.log("verify data:", data);
+
+      if (!data.ok) {
+        switch (data?.error?.code) {
+          case "ALREADY_VERIFIED":
+            router.replace({
+              pathname: "/login",
+              params: { email, verified: "1" },
+            });
+            return;
+            break;
+
+          case "INVALID_CODE":
+            setError(
+              data?.error.message?.attemptsLeft > 0
+                ? `Incorrect OTP. ${data?.error.message?.attemptsLeft} attempt${data?.error.message?.attemptsLeft === 1 ? "" : "s"} left.`
+                : "Incorrect OTP. Please request a new code.",
+            );
+
+            return;
+
+          default:
+            setError(
+              data?.error?.message ?? "Registration failed. Please try again.",
+            );
+            return;
+        }
+      }
 
 
 
+router.replace({ pathname: "/login", params: { email, verified: "1" } });
 
 
-
-
-
-
-
-
-
-
-
-    
+    } catch (error) {
+      setError("Can't reach the server. Check your connection and try again.");
+    } finally {
+      setVerifying(false);
+    }
   }
 
-  async function handleResend() {}
+  async function handleResend() {
+    try {
+      if (secondsLeft > 0 || resending) return;
+      setResending(true);
+      setError(null);
+      setInfo(null);
+
+      const url = `${API_URL}/auth/resend-otp`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      console.log("resend data:", data);
+      setSecondsLeft(Number(data?.data?.resendAfterSeconds ?? RESEND_COOLDOWN));
+      setCode("");
+      setInfo("A new code is on its way. Check your inbox.");
+    } catch (error) {
+      setError("Can't reach the server. Check your connection and try again.");
+    } finally {
+      setResending(false);
+    }
+  }
 
   return (
     <KeyboardAvoidingView
