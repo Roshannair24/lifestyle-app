@@ -12,6 +12,8 @@ import {
 import { useMemo, useState, useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/hooks/use-theme";
+import { API_URL } from "@/lib/url";
+import { saveToken } from "@/lib/auth-storage";
 
 type ThemeColors = ReturnType<typeof useTheme>;
 
@@ -20,6 +22,17 @@ export default function Login() {
   const styles = useMemo(() => makeStyles(theme), [theme]);
 
   type FieldErrors = { email?: string; password?: string };
+
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validate(email: string, password: string): FieldErrors {
+    const errors: FieldErrors = {};
+    if (!email) errors.email = "Email is required";
+    else if (!EMAIL_REGEX.test(email))
+      errors.email = "Enter a valid email address";
+    if (!password) errors.password = "Password is required";
+    return errors;
+  }
 
   const params = useLocalSearchParams<{ email?: string; verified?: string }>();
   const [email, setEmail] = useState(params.email ?? "");
@@ -31,22 +44,47 @@ export default function Login() {
 
   const justVerified = params.verified === "1";
   async function handleLogin() {
+    if (submitting) return;
+    setFormError(null);
+    const errors = validate(email, password);
+    setFieldErrors(errors);
 
+    if (Object.keys(errors).length > 0) return;
 
+    setSubmitting(true);
 
+    try {
+      const url = `${API_URL}/auth/login`;
 
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
 
+      const data = await res.json().catch(() => ({}));
 
+      console.log("login data:", data);
 
+      if (!res.ok) {
+        setFormError(data?.message ?? "Login failed.");
 
+        return;
+      }
 
+      await saveToken(data?.token);
 
-
-
-
-
-
-    
+      router.replace(data.user.profileCompleted ? "/home" : "/update-profile");
+    } catch (error) {
+      setFormError(
+        error instanceof Error ? error.message : "Something went wrong.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -61,9 +99,11 @@ export default function Login() {
         <Text style={styles.title}>Welcome back</Text>
         <Text style={styles.subtitle}>Log in to continue to PadosiPro</Text>
 
-          {justVerified && (
+        {justVerified && (
           <View style={styles.successBanner}>
-            <Text style={styles.successText}>Email verified. Log in to continue.</Text>
+            <Text style={styles.successText}>
+              Email verified. Log in to continue.
+            </Text>
           </View>
         )}
 
@@ -242,7 +282,7 @@ const makeStyles = (theme: ThemeColors) =>
       textAlign: "center",
     },
     footer: { flexDirection: "row", justifyContent: "center", marginTop: 24 },
-     successBanner: {
+    successBanner: {
       backgroundColor: theme.backgroundElement,
       borderLeftWidth: 4,
       borderLeftColor: theme.primary,

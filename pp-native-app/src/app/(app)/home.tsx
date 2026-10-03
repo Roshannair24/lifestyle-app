@@ -15,7 +15,7 @@ import { useTheme } from "@/hooks/use-theme";
 
 type ThemeColors = ReturnType<typeof useTheme>;
 
-export default function UpdateProfile() {
+export default function Homepage() {
   const theme = useTheme();
   const styles = useMemo(() => makeStyles(theme), [theme]);
 

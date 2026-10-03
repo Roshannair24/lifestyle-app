@@ -7,6 +7,10 @@ const {
   OTP_TTL_MS,
   RESEND_COOLDOWN_MS,
 } = require("../../../services/otp-service");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
 const verifyOtp = async (req, res) => {
   const { email, code } = req.body;
@@ -172,7 +176,92 @@ const resendOtp = async (req, res) => {
   }
 };
 
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        ok: false,
+        error: {
+          code: errorCodes.VALIDATION_ERROR,
+          message: "Invalid email and password.",
+        },
+      });
+    }
+
+    const { rows } = await pool.query(
+      `SELECT id, email, password_hash, is_verified, profile_completed
+       FROM users
+       WHERE email = $1`,
+      [email],
+    );
+    const user = rows[0];
+
+    console.log({ user });
+
+    if (!user || !user.password_hash) {
+      return res.status(401).json({
+        ok: false,
+        error: {
+          code: errorCodes.INVALID_CREDENTIALS,
+          message: "Invalid email or password.",
+        },
+      });
+    }
+
+    const passwordMatches = await bcrypt.compare(password, user.password_hash);
+
+    console.log({ passwordMatches });
+
+    if (!passwordMatches) {
+      return res.status(401).json({
+        ok: false,
+        error: {
+          code: errorCodes.INVALID_CREDENTIALS,
+          message: "Invalid email or password.",
+        },
+      });
+    }
+
+    if (!user.is_verified) {
+      return res.status(401).json({
+        ok: false,
+        error: {
+          code: errorCodes.EMAIL_NOT_VERIFIED,
+          message: "Please verify your email to continue",
+        },
+      });
+    }
+
+    const token = jwt.sign({ sub: String(user.id) }, process.env.JWT_SECRET, {
+      algorithm: "HS256",
+      expiresIn: JWT_EXPIRES_IN,
+    });
+
+    return res.status(201).json({
+      ok: true,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        profileCompleted: user.profile_completed,
+      },
+    });
+  } catch (error) {
+    console.error("loginUser failed:", error);
+    return res.status(500).json({
+      ok: false,
+      error: {
+        code: errorCodes.INTERNAL_ERROR,
+        message: "Something went wrong. Please try again.",
+      },
+    });
+  }
+};
+
 module.exports = {
   verifyOtp,
   resendOtp,
+  loginUser,
 };
