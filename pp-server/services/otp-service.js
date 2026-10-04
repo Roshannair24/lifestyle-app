@@ -74,5 +74,6 @@ module.exports = {
   MAX_ATTEMPTS,
   generateOtp,
   assignOtp,
-  evaluateOtp
+  evaluateOtp,
+  hashOtp
 };
