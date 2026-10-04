@@ -35,6 +35,7 @@ export const Colors = {
   light: {
     text: "#1a1a1a",
     background: "#fafaf7",
+    surface: "#FFFFFF",
     backgroundElement: "#F0F0F3",
     backgroundSelected: "#E0E1E6",
     textSecondary: "#667085",
@@ -42,9 +43,12 @@ export const Colors = {
     border: "#d1d5db",
     error: "#dc2626",
     success: "#15803D",
+    primarySoft: "#E6F2EC",
+    accent: "#C9A43B",
   },
   dark: {
     text: "#ffffff",
+    surface: "#FFFFFF",
     background: "#000000",
     backgroundElement: "#212225",
     backgroundSelected: "#2E3135",
@@ -53,6 +57,8 @@ export const Colors = {
     border: "#3a3d42",
     error: "#f87171",
     success: "#15803D",
+    primarySoft: "#1E3A30",
+    accent: "#D4B256",
   },
 } as const;
 

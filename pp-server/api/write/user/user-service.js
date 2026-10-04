@@ -159,6 +159,7 @@ const updateUserProfile = async (req, res) => {
 };
 
 const saveUsertasks = async (req, res) => {
+    const client = await pool.connect();
   try {
     const { taskIds = [] } = req.body;
 

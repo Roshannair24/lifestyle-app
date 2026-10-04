@@ -1,7 +1,6 @@
 const errorCodes = require("../../constants/error-codes");
 const pool = require("../../db");
 
-
 const listTasks = async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -27,7 +26,6 @@ const listTasks = async (req, res) => {
   }
 };
 
-
 const getUserTasks = async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -39,7 +37,41 @@ const getUserTasks = async (req, res) => {
        ORDER BY t.name`,
       [req.userId],
     );
-    return res.status(200).json({ count: rows.length, data: rows });
+    return res.status(200).json({ ok: true, count: rows.length, data: rows });
+  } catch (error) {
+    console.error("getMyTasks failed:", error);
+    return res.status(500).json({
+      ok: false,
+      error: {
+        code: errorCodes.INTERNAL_ERROR,
+        message: "Something went wrong. Please try again.",
+      },
+    });
+  }
+};
+
+const getUserProfile = async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT name, mobile, address, business_name
+       FROM profiles
+       WHERE user_id = $1`,
+      [req.userId],
+    );
+
+    const user = rows?.[0];
+
+    if (!user) {
+      return res.status(500).json({
+        ok: false,
+        error: {
+          code: errorCodes.VALIDATION_ERROR,
+          message: "Profile doesnt exist",
+        },
+      });
+    }
+
+    return res.status(200).json({ ok: true, data: user });
   } catch (error) {
     console.error("getMyTasks failed:", error);
     return res.status(500).json({
@@ -54,5 +86,6 @@ const getUserTasks = async (req, res) => {
 
 module.exports = {
   listTasks,
-  getUserTasks 
+  getUserTasks,
+  getUserProfile
 };
