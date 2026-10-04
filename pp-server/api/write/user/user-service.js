@@ -89,6 +89,76 @@ const registerUser = async (req, res) => {
   }
 };
 
+const updateUserProfile = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { name, mobile, address, businessName } = req.body;
+
+    if (!name || !mobile || !address || !businessName) {
+      return res.status(401).json({
+        ok: false,
+        error: {
+          code: errorCodes.VALIDATION_ERROR,
+          message: "Invalid Input.",
+        },
+      });
+    }
+    await client.query("BEGIN");
+
+    const userResult = await client.query(
+      "UPDATE users SET profile_completed = true, updated_at = now() WHERE id = $1",
+      [req.userId],
+    );
+    console.log({ userResult });
+
+    if (userResult?.rowCount === 0) {
+      await client.query("ROLLBACK");
+
+      return res.status(401).json({
+        error: {
+          code: errorCodes.UNAUTHORIZED,
+          message: "Please log in again",
+        },
+      });
+    }
+
+    // Insert on first save, update on later saves
+    const { rows } = await client.query(
+      `INSERT INTO profiles (user_id, name, mobile, address, business_name)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (user_id) DO UPDATE
+         SET name = EXCLUDED.name,
+             mobile = EXCLUDED.mobile,
+             address = EXCLUDED.address,
+             business_name = EXCLUDED.business_name,
+             updated_at = now()
+       RETURNING name, mobile, address, business_name, updated_at`,
+      [req.userId, name, mobile, address, businessName],
+    );
+
+    console.log(" rows", rows);
+
+    await client.query("COMMIT");
+    return res.status(201).json({
+      ok: true,
+      data: rows?.[0],
+    });
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    console.log("Error at updateUserProfile()", error);
+    return res.status(500).json({
+       ok: false,
+      error: {
+        code: errorCodes.INTERNAL_ERROR,
+        message: "Something went wrong. Please try again.",
+      },
+    });
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   registerUser,
+  updateUserProfile,
 };

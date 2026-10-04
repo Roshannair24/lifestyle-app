@@ -12,6 +12,8 @@ import {
 import { useMemo, useState, useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/hooks/use-theme";
+import { clearToken, getToken } from "@/lib/auth-storage";
+import { API_URL } from "@/lib/url";
 
 type ThemeColors = ReturnType<typeof useTheme>;
 
@@ -94,7 +96,60 @@ export default function UpdateProfile() {
       setServerErrors((s) => ({ ...s, [field]: undefined }));
   }
 
-  async function handleSave() {}
+  async function handleSave() {
+    if (saving) return;
+    setSubmitted(true);
+    setFormError(null);
+    if (Object.keys(clientErrors).length > 0) return;
+
+    setSaving(true);
+
+    try {
+      const token = await getToken();
+
+      console.log({ token });
+
+      const url = `${API_URL}/user/update-user-profile`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          mobile: values.mobile,
+          address: values.address.trim(),
+          businessName: values.businessName.trim() || null,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      console.log({ data });
+
+      if (!data?.ok) {
+        if (data?.error?.code === "UNAUTHORIZED") {
+          await clearToken();
+          router.replace("/login");
+          return;
+        } else {
+          setFormError(data?.error?.error);
+          return;
+        }
+      }
+
+      router.replace("/home");
+    } catch (error) {
+      console.log("Error at handleSave()", error);
+      setFormError(
+        error instanceof Error ? error.message : "Something went wrong.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function handleLogout() {}
 
