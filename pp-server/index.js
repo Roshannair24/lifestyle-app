@@ -9,9 +9,11 @@ app.use(express.json());
 //routers
 const userRouter = require("./api/write/user/user-router");
 const authRouter = require("./api/write/auth/auth-router");
+const readRouter = require("./api/read/read-router");
 
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
+app.use("/data", readRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

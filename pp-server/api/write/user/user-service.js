@@ -147,7 +147,91 @@ const updateUserProfile = async (req, res) => {
     await client.query("ROLLBACK").catch(() => {});
     console.log("Error at updateUserProfile()", error);
     return res.status(500).json({
-       ok: false,
+      ok: false,
+      error: {
+        code: errorCodes.INTERNAL_ERROR,
+        message: "Something went wrong. Please try again.",
+      },
+    });
+  } finally {
+    client.release();
+  }
+};
+
+const saveUsertasks = async (req, res) => {
+  try {
+    const { taskIds = [] } = req.body;
+
+    if (!taskIds?.length) {
+      return res.status(401).json({
+        error: {
+          code: errorCodes.VALIDATION_ERROR,
+          message: "Select atleast one task.",
+        },
+      });
+    }
+
+    const uniqueTaskIds = [...new Set(taskIds)];
+
+    await client.query("BEGIN");
+
+    // Every ID must exist in the catalogue
+    const { rows: found } = await client.query(
+      "SELECT id FROM tasks WHERE id = ANY($1::int[])",
+      [uniqueTaskIds],
+    );
+    if (found.length !== uniqueTaskIds.length) {
+      await client.query("ROLLBACK");
+
+      return res.status(400).json({
+        error: {
+          code: errorCodes.VALIDATION_ERROR,
+          message:
+            "Some selected tasks are no longer available. Please refresh and try again.",
+        },
+      });
+    }
+
+    // Remove any tasks the user had picked that aren't in their new selection
+    await client.query(
+      `
+  DELETE FROM user_tasks
+  WHERE user_id = $1
+    AND NOT (task_id = ANY($2::int[]))
+  `,
+      [req.userId, uniqueTaskIds],
+    );
+
+    // Add newly selected tasks; skip ones the user already has
+    await client.query(
+      `
+  INSERT INTO user_tasks (user_id, task_id)
+  SELECT $1::int, task_id
+  FROM unnest($2::int[]) AS task_id
+  ON CONFLICT (user_id, task_id) DO NOTHING
+  `,
+      [req.userId, uniqueTaskIds],
+    );
+
+    await client.query("COMMIT");
+    return res.status(200).json({ ok: true, count: uniqueTaskIds.length });
+  } catch (error) {
+    console.log("Error at saveUsertasks():", error);
+
+    await client.query("ROLLBACK").catch(() => {});
+    // 23503 = foreign key violation: the user from the token no longer exists
+    if (error.code === "23503") {
+      return res.status(401).json({
+        ok: false,
+        error: {
+          code: errorCodes.UNAUTHORIZED,
+          message: "Please log in again",
+        },
+      });
+    }
+
+    return res.status(500).json({
+      ok: false,
       error: {
         code: errorCodes.INTERNAL_ERROR,
         message: "Something went wrong. Please try again.",
@@ -161,4 +245,5 @@ const updateUserProfile = async (req, res) => {
 module.exports = {
   registerUser,
   updateUserProfile,
+  saveUsertasks,
 };
