@@ -14,7 +14,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useTheme } from "@/hooks/use-theme";
 import { useFocusEffect } from "expo-router/build/react-navigation";
 import { API_URL } from "@/lib/url";
-import { getToken } from "@/lib/auth-storage";
+import { clearToken, getToken } from "@/lib/auth-storage";
 import { Feather } from "@expo/vector-icons";
 
 type ThemeColors = ReturnType<typeof useTheme>;
@@ -37,7 +37,10 @@ export default function Homepage() {
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [tasksError, setTasksError] = useState<string | null>(null);
 
-  const handleLogout = async () => {};
+  async function handleLogout() {
+    await clearToken();
+    router.replace("/login");
+  }
 
   const total: number = 0;
   const firstName = name?.split(" ")[0];
@@ -147,7 +150,7 @@ export default function Homepage() {
             {firstName ? `, ${firstName}` : ""}
           </Text>
           <Pressable
-            onPress={openAccountMenu}
+            onPress={handleLogout}
             hitSlop={12}
             accessibilityRole="button"
             accessibilityLabel="Account"
