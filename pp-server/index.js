@@ -1,11 +1,33 @@
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
+const pool = require("./db");
 const app = express();
 const port = 3000;
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.use(express.json());
+
+//routers
+const userRouter = require("./api/write/user/user-router");
+const authRouter = require("./api/write/auth/auth-router");
+const readRouter = require("./api/read/read-router");
+
+app.use("/user", userRouter);
+app.use("/auth", authRouter);
+app.use("/data", readRouter);
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 
-app.listen(port, () => {
-  console.log(`Padosi pro app listening on port ${port}`);
-});
+// Check the DB connection before starting the server
+pool
+  .query("SELECT 1")
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Padosi pro app v1.1 listening on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Could not connect to Postgres", err);
+    process.exit(1);
+  });
