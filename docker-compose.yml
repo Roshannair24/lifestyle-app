@@ -22,15 +22,20 @@ services:
       - "8025:8025"   # inbox UI: http://localhost:8025
       - "1025:1025"   
 
-  # api:
-  #   build: ./pp-server          # uses pp-server/Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     DATABASE_URL: postgres://${POSTGRES_USER:-padosi}:${POSTGRES_PASSWORD:-padosi}@db:5432/${POSTGRES_DB:-padosi}
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
+  api:
+    build: ./pp-server          # uses pp-server/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-padosi}:${POSTGRES_PASSWORD:-padosi}@db:5432/${POSTGRES_DB:-padosi}
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      OTP_SECRET: ${OTP_SECRET:-dev-only-otp-secret-change-me}     
+      JWT_SECRET: ${JWT_SECRET:-dev-only-jwt-secret-change-me}     
+      JWT_EXPIRES_IN: 7d   
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:
