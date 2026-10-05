@@ -167,3 +167,10 @@ Copy the APK to the phone and open it, or with the phone connected over USB:
 ```bash
 adb install app-release.apk
 ```
+## Test with the APK
+
+First run docker compose up --build
+then run the apk.
+
+
+The prebuilt APK in this submission is built with `EXPO_PUBLIC_API_URL=http://10.0.2.2:3000`. `10.0.2.2` is the Android emulator's address for the host machine, so the APK works on **any Android emulator running on the same machine as the backend**, with no rebuild.
