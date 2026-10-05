@@ -22,7 +22,6 @@ const verifyOtp = async (req, res) => {
       [email],
     );
     const user = users[0];
-    console.log("user:", user);
 
     if (!user) {
       await client.query("ROLLBACK");
@@ -50,8 +49,6 @@ const verifyOtp = async (req, res) => {
       "SELECT * FROM email_otps WHERE user_id = $1  FOR UPDATE",
       [Number(user?.id)],
     );
-
-    console.log({ otps });
 
     const result = evaluateOtp(otps[0], code);
 
@@ -120,8 +117,6 @@ const resendOtp = async (req, res) => {
 
     const user = users[0];
 
-    console.log({ users });
-
     const code = await assignOtp({ db: client, userId: user?.id });
 
     if (!code) {
@@ -135,8 +130,6 @@ const resendOtp = async (req, res) => {
         },
       });
     }
-
-    console.log({ user, code });
 
     await client.query("COMMIT");
 
@@ -198,8 +191,6 @@ const loginUser = async (req, res) => {
     );
     const user = rows[0];
 
-    console.log({ user });
-
     if (!user || !user.password_hash) {
       return res.status(401).json({
         ok: false,
@@ -211,8 +202,6 @@ const loginUser = async (req, res) => {
     }
 
     const passwordMatches = await bcrypt.compare(password, user.password_hash);
-
-    console.log({ passwordMatches });
 
     if (!passwordMatches) {
       return res.status(401).json({

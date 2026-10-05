@@ -67,8 +67,6 @@ export default function Login() {
 
       const data = await res.json().catch(() => ({}));
 
-      console.log("login data:", data);
-
       if (!res.ok) {
         setFormError(data?.message ?? "Login failed.");
 

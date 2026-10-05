@@ -98,8 +98,6 @@ export default function TaskSelectionScreen() {
 
       const data = await res.json().catch(() => ({}));
 
-      console.log({ data }, { depth: null });
-
       return data?.data ?? [];
     } catch (e) {
       // Handle error
@@ -235,15 +233,11 @@ export default function TaskSelectionScreen() {
   );
 
   async function save() {
-    console.log({ selected });
-
     setSaving(true);
     setSaveError(null);
 
     try {
       const token = await getToken();
-
-      console.log({ token });
 
       const url = `${API_URL}/user/save-user-tasks`;
 

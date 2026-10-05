@@ -4,8 +4,6 @@ function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const [scheme, token] = header.split(" ");
 
-  console.log({ scheme, token });
-
   if (scheme !== "Bearer" || !token) {
     return res.status(401).json({
       error: {
@@ -19,8 +17,6 @@ function requireAuth(req, res, next) {
     const payload = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: ["HS256"],
     });
-
-    console.log({ payload });
 
     req.userId = Number(payload.sub);
     return next();

@@ -17,7 +17,6 @@ const registerUser = async (req, res) => {
   try {
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-    console.log("beginning");
     await client.query("BEGIN");
     const { rows } = await client.query(
       `INSERT INTO users (email, password_hash)
@@ -40,10 +39,7 @@ const registerUser = async (req, res) => {
       });
     }
 
-    console.log({ user, code });
-
     await client.query("COMMIT");
-    console.log("endend");
 
     let emailSent = false;
     try {
@@ -109,7 +105,6 @@ const updateUserProfile = async (req, res) => {
       "UPDATE users SET profile_completed = true, updated_at = now() WHERE id = $1",
       [req.userId],
     );
-    console.log({ userResult });
 
     if (userResult?.rowCount === 0) {
       await client.query("ROLLBACK");
@@ -136,8 +131,6 @@ const updateUserProfile = async (req, res) => {
       [req.userId, name, mobile, address, businessName],
     );
 
-    console.log(" rows", rows);
-
     await client.query("COMMIT");
     return res.status(201).json({
       ok: true,
@@ -159,7 +152,7 @@ const updateUserProfile = async (req, res) => {
 };
 
 const saveUsertasks = async (req, res) => {
-    const client = await pool.connect();
+  const client = await pool.connect();
   try {
     const { taskIds = [] } = req.body;
 

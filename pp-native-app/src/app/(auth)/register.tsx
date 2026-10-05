@@ -68,11 +68,7 @@ export default function Register() {
     setLoading(true);
     setServerError(null);
     try {
-
-
-const url = `${API_URL}/user/register`
-
-console.log({url})
+      const url = `${API_URL}/user/register`;
 
       const res = await fetch(url, {
         method: "POST",
@@ -83,8 +79,6 @@ console.log({url})
         }),
       });
       const data = await res.json().catch(() => ({}));
-
-      console.log("data:", data);
 
       if (!res.ok) {
         setServerError(

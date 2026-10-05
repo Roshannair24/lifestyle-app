@@ -107,8 +107,6 @@ export default function UpdateProfile() {
     try {
       const token = await getToken();
 
-      console.log({ token });
-
       const url = `${API_URL}/user/update-user-profile`;
 
       const res = await fetch(url, {
@@ -126,8 +124,6 @@ export default function UpdateProfile() {
       });
 
       const data = await res.json().catch(() => ({}));
-
-      console.log({ data });
 
       if (!data?.ok) {
         if (data?.error?.code === "UNAUTHORIZED") {

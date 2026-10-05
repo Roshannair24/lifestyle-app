@@ -68,8 +68,6 @@ export default function Verify() {
 
       const data = await res.json().catch(() => ({}));
 
-      console.log("verify data:", data);
-
       if (!data.ok) {
         switch (data?.error?.code) {
           case "ALREADY_VERIFIED":
@@ -97,11 +95,7 @@ export default function Verify() {
         }
       }
 
-
-
-router.replace({ pathname: "/login", params: { email, verified: "1" } });
-
-
+      router.replace({ pathname: "/login", params: { email, verified: "1" } });
     } catch (error) {
       setError("Can't reach the server. Check your connection and try again.");
     } finally {
@@ -128,7 +122,6 @@ router.replace({ pathname: "/login", params: { email, verified: "1" } });
 
       const data = await res.json().catch(() => ({}));
 
-      console.log("resend data:", data);
       setSecondsLeft(Number(data?.data?.resendAfterSeconds ?? RESEND_COOLDOWN));
       setCode("");
       setInfo("A new code is on its way. Check your inbox.");

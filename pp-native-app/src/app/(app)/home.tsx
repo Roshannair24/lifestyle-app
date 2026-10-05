@@ -59,6 +59,8 @@ export default function Homepage() {
       });
 
       const data = await res.json().catch(() => ({}));
+
+      setName(data?.data?.name);
     } catch (e) {
       // Handle error
     }
@@ -81,8 +83,6 @@ export default function Homepage() {
 
       const data = await res.json().catch(() => ({}));
 
-      console.log({ data });
-
       setMyTasks(data?.data ?? []);
     } catch (e) {
       setTasksError(
@@ -96,7 +96,7 @@ export default function Homepage() {
   // // Runs on first open AND when returning from "Edit tasks"
   useFocusEffect(
     useCallback(() => {
-      // fetchUser();
+      fetchUser();
       fetchUserTasks();
     }, []),
   );
